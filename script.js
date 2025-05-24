@@ -9,7 +9,6 @@ videoElement.setAttribute("playsinline", true);
 document.body.appendChild(videoElement);
 
 const statusText = document.getElementById("status");
-const stopwatchDisplay = document.getElementById("stopwatch");
 const resetBtn = document.getElementById("reset");
 resetBtn.addEventListener("click", resetTimer);
 
@@ -34,16 +33,33 @@ async function requestWakeLock() {
 
 function updateTime() {
   todaySeconds++;
-  stopwatchDisplay.textContent = formatTime(todaySeconds);
+  updateFlipClock(todaySeconds);
   localStorage.setItem(todayKey, todaySeconds);
   updateDailyReport();
 }
 
-function formatTime(sec) {
+function updateFlipClock(sec) {
   const hrs = String(Math.floor(sec / 3600)).padStart(2, "0");
   const mins = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
   const secs = String(sec % 60).padStart(2, "0");
-  return `${hrs}:${mins}:${secs}`;
+
+  setFlip("hours", hrs);
+  setFlip("minutes", mins);
+  setFlip("seconds", secs);
+}
+
+function setFlip(id, value) {
+  const unit = document.getElementById(id);
+  const upper = unit.querySelector(".upper");
+  const lower = unit.querySelector(".lower");
+
+  if (upper.textContent !== value) {
+    upper.textContent = value;
+    lower.textContent = value;
+    unit.classList.remove("flip");
+    void unit.offsetWidth; // trigger reflow
+    unit.classList.add("flip");
+  }
 }
 
 function startTimer() {
@@ -63,7 +79,7 @@ function pauseTimer() {
 function resetTimer() {
   pauseTimer();
   todaySeconds = 0;
-  stopwatchDisplay.textContent = formatTime(todaySeconds);
+  updateFlipClock(todaySeconds);
   localStorage.removeItem(todayKey);
   updateDailyReport();
 }
@@ -72,7 +88,7 @@ function loadStoredTime() {
   const saved = localStorage.getItem(todayKey);
   if (saved) {
     todaySeconds = parseInt(saved);
-    stopwatchDisplay.textContent = formatTime(todaySeconds);
+    updateFlipClock(todaySeconds);
   }
   updateDailyReport();
 }
@@ -87,9 +103,11 @@ function updateDailyReport() {
     .reverse()
     .forEach(key => {
       const sec = parseInt(localStorage.getItem(key));
-      const time = formatTime(sec);
+      const hrs = String(Math.floor(sec / 3600)).padStart(2, "0");
+      const mins = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
+      const secs = String(sec % 60).padStart(2, "0");
       const li = document.createElement("li");
-      li.textContent = `${key}: ${time}`;
+      li.textContent = `${key}: ${hrs}:${mins}:${secs}`;
       report.appendChild(li);
     });
 }
@@ -107,12 +125,9 @@ function checkFaceDirection(landmarks) {
   const leftEye = landmarks[33];
   const rightEye = landmarks[263];
   const noseTip = landmarks[1];
-
-  const eyeDiff = Math.abs(leftEye.x - rightEye.x);
   const noseCenter = (leftEye.x + rightEye.x) / 2;
-  const faceAngle = noseTip.x - noseCenter;
-
-  return Math.abs(faceAngle) < 0.03;
+  const angle = noseTip.x - noseCenter;
+  return Math.abs(angle) < 0.03;
 }
 
 function evaluateStudyStatus() {
