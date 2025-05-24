@@ -4,38 +4,60 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Study Stopwatch</title>
+  <meta name="description" content="Track your study time automatically using body posture. BlazePose and FaceMesh detect if you're truly focused." />
+  <meta name="keywords" content="study stopwatch, productivity tracker, posture detection, AI study, blaze pose, face mesh" />
+  <meta name="author" content="Naitik Raj" />
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- MediaPipe Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/pose.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/face_mesh.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
   <script defer src="script.js"></script>
 </head>
 <body>
-  <div class="container" id="app">
+  <div class="container">
     <h1>Study Stopwatch</h1>
-
-    <div class="flip-clock-wrapper" id="clock">
-      <div class="flip-digit" id="h1"></div>
-      <div class="flip-digit" id="h2"></div>
-      <div class="separator">:</div>
-      <div class="flip-digit" id="m1"></div>
-      <div class="flip-digit" id="m2"></div>
-      <div class="separator">:</div>
-      <div class="flip-digit" id="s1"></div>
-      <div class="flip-digit" id="s2"></div>
-    </div>
-
-    <div class="fullscreen-btn" onclick="toggleFullscreen()" id="fullscreenBtn">⛶</div>
-
+    <div id="stopwatch">00:00:00</div>
     <div class="controls">
       <button id="reset">Reset</button>
     </div>
-
-    <div id="status">Focused — Studying</div>
-
+    <div id="status">Loading...</div>
     <div class="report">
       <h3>Daily Report</h3>
-      <ul id="daily-report">
-        <li>2025-05-24: 00:41:48</li>
-      </ul>
+      <ul id="daily-report"></ul>
     </div>
+  </div>
+
+  <footer>
+    <p>
+      <a href="#about">About</a> |
+      <a href="#privacy">Privacy Policy</a> |
+      <a href="mailto:rajnaitik620@gmail.com">Contact</a> |
+      <a href="https://www.instagram.com/itz_raj_0990_?igsh=bTl6NmgzOGI3OWQy" target="_blank">Instagram</a>
+    </p>
+  </footer>
+
+  <!-- About Section -->
+  <div id="about" class="info-section">
+    <h3>About</h3>
+    <p>This app uses BlazePose and FaceMesh to detect your writing posture and focus direction in real time. It helps you stay truly productive by running the timer only when you're really studying.</p>
+  </div>
+
+  <!-- 🔥 Important Guidelines Section -->
+  <div class="info-section" style="background-color: #222; border-left: 4px solid #00cec9; padding: 15px; margin-top: 20px;">
+    <h3 style="color: #00cec9;">⚠️ Important Study Guidelines</h3>
+    <ul style="text-align: left; font-size: 0.95em; line-height: 1.6;">
+      <li><strong>1.</strong> Make sure your <strong>face and hands are clearly visible</strong> in the camera frame for accurate detection.</li>
+      <li><strong>2.</strong> Maintain at least <strong>25 cm (10 inches)</strong> distance from your notebook while reading or writing — this is ideal for posture and <strong>eye health</strong>.</li>
+      <li><strong>3.</strong> Keep your <strong>phone or screen 40–50 cm</strong> away from your face to avoid strain and improve focus detection.</li>
+    </ul>
+  </div>
+
+  <!-- Privacy Policy Section -->
+  <div id="privacy" class="info-section">
+    <h3>Privacy Policy</h3>
+    <p>Your camera is used only locally within your browser for posture and face direction detection. No photos, videos, or personal data are saved or shared. Your daily study time is stored only on your device using localStorage.</p>
   </div>
 </body>
 </html>
