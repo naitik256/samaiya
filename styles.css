@@ -1,0 +1,83 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #111;
+  color: white;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.container {
+  padding: 20px;
+}
+
+.flip-clock-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  font-size: 60px;
+  font-family: monospace;
+}
+
+.digit {
+  background: #333;
+  color: #ffc107;
+  border-radius: 8px;
+  margin: 0 2px;
+  width: 40px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  transition: all 0.3s ease-in-out;
+  box-shadow: inset 0 -5px 0 rgba(255, 255, 255, 0.1);
+}
+
+.separator {
+  margin: 0 5px;
+  font-size: 48px;
+}
+
+.fullscreen-btn {
+  font-size: 20px;
+  background-color: #000;
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  margin: 10px;
+  position: relative;
+}
+
+#app.fullscreen {
+  background-color: black;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+#app.fullscreen h1,
+#app.fullscreen .controls,
+#app.fullscreen #status,
+#app.fullscreen .report,
+#app.fullscreen footer,
+#app.fullscreen .info-section {
+  display: none;
+}
+
+#app.fullscreen .fullscreen-btn {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  font-size: 24px;
+}
