@@ -12,14 +12,14 @@
     <h1>Study Stopwatch</h1>
 
     <div class="flip-clock-wrapper" id="clock">
-      <div class="digit" id="h1"></div>
-      <div class="digit" id="h2"></div>
+      <div class="flip-digit" id="h1"></div>
+      <div class="flip-digit" id="h2"></div>
       <div class="separator">:</div>
-      <div class="digit" id="m1"></div>
-      <div class="digit" id="m2"></div>
+      <div class="flip-digit" id="m1"></div>
+      <div class="flip-digit" id="m2"></div>
       <div class="separator">:</div>
-      <div class="digit" id="s1"></div>
-      <div class="digit" id="s2"></div>
+      <div class="flip-digit" id="s1"></div>
+      <div class="flip-digit" id="s2"></div>
     </div>
 
     <div class="fullscreen-btn" onclick="toggleFullscreen()" id="fullscreenBtn">⛶</div>
@@ -35,35 +35,6 @@
       <ul id="daily-report">
         <li>2025-05-24: 00:41:48</li>
       </ul>
-    </div>
-
-    <footer>
-      <p>
-        <a href="#about">About</a> |
-        <a href="#privacy">Privacy Policy</a> |
-        <a href="mailto:rajnaitik620@gmail.com">Contact</a> |
-        <a href="https://www.instagram.com/itz_raj_0990_?igsh=bTl6NmgzOGI3OWQy" target="_blank">Instagram</a>
-      </p>
-    </footer>
-
-    <div id="about" class="info-section">
-      <h3>About</h3>
-      <p>This app uses BlazePose and FaceMesh to detect your writing posture and face direction in real-time. The timer runs only when you are actively focused on studying.</p>
-    </div>
-
-    <!-- Important Note -->
-    <div class="info-section" style="background-color: #222; border-left: 4px solid #00cec9; padding: 15px; margin-top: 20px;">
-      <h3 style="color: #00cec9;">⚠️ Important Study Guidelines</h3>
-      <ul style="text-align: left; font-size: 0.95em; line-height: 1.6;">
-        <li><strong>1.</strong> Place your <strong>face and hands</strong> clearly in camera frame.</li>
-        <li><strong>2.</strong> Maintain <strong>25 cm (10 inches)</strong> distance from book or copy.</li>
-        <li><strong>3.</strong> Keep <strong>phone/screen 40–50 cm</strong> from face.</li>
-      </ul>
-    </div>
-
-    <div id="privacy" class="info-section">
-      <h3>Privacy Policy</h3>
-      <p>Your camera is used only in your browser for detection. No videos or photos are saved. Your study time is stored locally using localStorage.</p>
     </div>
   </div>
 </body>
