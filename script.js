@@ -1,5 +1,6 @@
 let timerSeconds = 0;
 let interval = null;
+let lastDigits = "000000";
 
 function formatTime(sec) {
   const h = String(Math.floor(sec / 3600)).padStart(2, '0');
@@ -10,12 +11,18 @@ function formatTime(sec) {
 
 function updateClock() {
   const formatted = formatTime(timerSeconds);
-  document.getElementById('h1').textContent = formatted[0];
-  document.getElementById('h2').textContent = formatted[1];
-  document.getElementById('m1').textContent = formatted[2];
-  document.getElementById('m2').textContent = formatted[3];
-  document.getElementById('s1').textContent = formatted[4];
-  document.getElementById('s2').textContent = formatted[5];
+  for (let i = 0; i < 6; i++) {
+    const id = ['h1', 'h2', 'm1', 'm2', 's1', 's2'][i];
+    const digitElem = document.getElementById(id);
+    const newDigit = formatted[i];
+    if (digitElem.getAttribute('data-digit') !== newDigit) {
+      digitElem.classList.remove('flip');
+      void digitElem.offsetWidth; // trigger reflow
+      digitElem.setAttribute('data-digit', newDigit);
+      digitElem.classList.add('flip');
+    }
+  }
+  lastDigits = formatted;
 }
 
 function tick() {
