@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Study Stopwatch</title>
-  <meta name="description" content="Track your study time with AI-powered posture detection. Flip clock + BlazePose + FaceMesh." />
-  <meta name="keywords" content="study stopwatch, flip clock, blaze pose, face mesh, productivity, ai timer" />
+  <meta name="description" content="AI posture-based stopwatch with real flip clock UI. Track study focus using BlazePose and FaceMesh." />
   <meta name="author" content="Naitik Raj" />
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/pose.js"></script>
@@ -17,23 +16,30 @@
   <div class="container">
     <h1>Study Stopwatch</h1>
 
-    <!-- Real Flip Clock UI -->
-    <div class="flip-clock" id="flip-clock">
-      <div class="flip-unit" data-unit="hourTens"></div>
-      <div class="flip-unit" data-unit="hourOnes"></div>
+    <!-- Real Flip Clock -->
+    <div class="real-flip-clock" id="flip-clock">
+      <!-- 6 digits: hh:mm:ss -->
+      <div class="digit-group">
+        <div class="flip-digit" data-unit="hourTens"><div class="card"><div class="top">0</div><div class="bottom">0</div></div></div>
+        <div class="flip-digit" data-unit="hourOnes"><div class="card"><div class="top">0</div><div class="bottom">0</div></div></div>
+      </div>
       <div class="colon">:</div>
-      <div class="flip-unit" data-unit="minuteTens"></div>
-      <div class="flip-unit" data-unit="minuteOnes"></div>
+      <div class="digit-group">
+        <div class="flip-digit" data-unit="minuteTens"><div class="card"><div class="top">0</div><div class="bottom">0</div></div></div>
+        <div class="flip-digit" data-unit="minuteOnes"><div class="card"><div class="top">0</div><div class="bottom">0</div></div></div>
+      </div>
       <div class="colon">:</div>
-      <div class="flip-unit" data-unit="secondTens"></div>
-      <div class="flip-unit" data-unit="secondOnes"></div>
+      <div class="digit-group">
+        <div class="flip-digit" data-unit="secondTens"><div class="card"><div class="top">0</div><div class="bottom">0</div></div></div>
+        <div class="flip-digit" data-unit="secondOnes"><div class="card"><div class="top">0</div><div class="bottom">0</div></div></div>
+      </div>
     </div>
 
     <div class="controls">
       <button id="reset">Reset</button>
     </div>
 
-    <div id="status">Loading...</div>
+    <div id="status">Loading posture detection...</div>
 
     <div class="report">
       <h3>Daily Report</h3>
@@ -52,21 +58,21 @@
 
   <div id="about" class="info-section">
     <h3>About</h3>
-    <p>This app uses AI posture detection with MediaPipe BlazePose and FaceMesh to track your focus. Timer runs only when you're in writing posture and facing forward. Flip clock adds motivation and focus.</p>
+    <p>This app uses MediaPipe BlazePose and FaceMesh to detect your writing posture and face direction. Timer runs only when you are truly focused. Real flip clock UI matches your study rhythm.</p>
   </div>
 
   <div class="info-section" style="background-color:#222; border-left:4px solid #00cec9; padding:15px; margin-top:20px;">
-    <h3 style="color:#00cec9;">⚠️ Important Study Guidelines</h3>
+    <h3 style="color:#00cec9;">⚠️ Study Guidelines</h3>
     <ul style="text-align:left; font-size:0.95em; line-height:1.6;">
-      <li><strong>1.</strong> Keep your <strong>face and hands clearly visible</strong> in the camera frame.</li>
-      <li><strong>2.</strong> Maintain <strong>25 cm</strong> from notebook for posture + eye health.</li>
-      <li><strong>3.</strong> Keep screens <strong>40–50 cm</strong> from your face.</li>
+      <li><strong>1.</strong> Face and hands must be in camera frame.</li>
+      <li><strong>2.</strong> Keep 25 cm distance from notebook.</li>
+      <li><strong>3.</strong> Maintain 40–50 cm from screen.</li>
     </ul>
   </div>
 
   <div id="privacy" class="info-section">
     <h3>Privacy Policy</h3>
-    <p>This app uses your webcam only within your browser. No video is saved or sent. Your study time is saved locally on your device using localStorage.</p>
+    <p>Camera is used only within your browser for posture tracking. No data is uploaded. Your study time is saved locally using localStorage.</p>
   </div>
 </body>
 </html>
