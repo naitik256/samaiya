@@ -1,6 +1,6 @@
 let todaySeconds = 0;
-let startTime = 0;
 let isRunning = false;
+let timerInterval = null;
 let wakeLock = null;
 
 const todayKey = new Date().toISOString().slice(0, 10);
@@ -21,7 +21,7 @@ async function requestWakeLock() {
       wakeLock = await navigator.wakeLock.request("screen");
     }
   } catch (err) {
-    console.error("Wake Lock failed:", err);
+    console.error("Wake Lock error:", err);
   }
 
   document.addEventListener("visibilitychange", async () => {
@@ -33,54 +33,49 @@ async function requestWakeLock() {
 
 function updateTime() {
   todaySeconds++;
-  updateFlipClock(todaySeconds);
+  updateClockDisplay(todaySeconds);
   localStorage.setItem(todayKey, todaySeconds);
   updateDailyReport();
 }
 
-function updateFlipClock(sec) {
-  const hrs = String(Math.floor(sec / 3600)).padStart(2, "0");
-  const mins = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
-  const secs = String(sec % 60).padStart(2, "0");
+function updateClockDisplay(seconds) {
+  const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+  const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+  const secs = String(seconds % 60).padStart(2, '0');
+  const digits = hrs + mins + secs;
 
-  setFlip("hours", hrs);
-  setFlip("minutes", mins);
-  setFlip("seconds", secs);
-}
-
-function setFlip(id, value) {
-  const unit = document.getElementById(id);
-  const upper = unit.querySelector(".upper");
-  const lower = unit.querySelector(".lower");
-
-  if (upper.textContent !== value) {
-    upper.textContent = value;
-    lower.textContent = value;
-    unit.classList.remove("flip");
-    void unit.offsetWidth; // trigger reflow
-    unit.classList.add("flip");
-  }
+  const units = ["hourTens", "hourOnes", "minuteTens", "minuteOnes", "secondTens", "secondOnes"];
+  digits.split('').forEach((digit, idx) => {
+    const unit = document.querySelector(`[data-unit="${units[idx]}"]`);
+    if (unit && unit.dataset.value !== digit) {
+      unit.dataset.value = digit;
+      unit.textContent = digit;
+      unit.classList.remove("flip");
+      void unit.offsetWidth;
+      unit.classList.add("flip");
+    }
+  });
 }
 
 function startTimer() {
   if (!isRunning) {
     isRunning = true;
-    startTime = setInterval(updateTime, 1000);
+    timerInterval = setInterval(updateTime, 1000);
   }
 }
 
 function pauseTimer() {
   if (isRunning) {
     isRunning = false;
-    clearInterval(startTime);
+    clearInterval(timerInterval);
   }
 }
 
 function resetTimer() {
   pauseTimer();
   todaySeconds = 0;
-  updateFlipClock(todaySeconds);
   localStorage.removeItem(todayKey);
+  updateClockDisplay(todaySeconds);
   updateDailyReport();
 }
 
@@ -88,7 +83,7 @@ function loadStoredTime() {
   const saved = localStorage.getItem(todayKey);
   if (saved) {
     todaySeconds = parseInt(saved);
-    updateFlipClock(todaySeconds);
+    updateClockDisplay(todaySeconds);
   }
   updateDailyReport();
 }
@@ -112,7 +107,7 @@ function updateDailyReport() {
     });
 }
 
-// BlazePose logic
+// BlazePose writing detection
 function isWritingPose(landmarks) {
   const headY = landmarks[0].y;
   const leftWristY = landmarks[15].y;
@@ -120,7 +115,7 @@ function isWritingPose(landmarks) {
   return (headY < leftWristY && headY < rightWristY);
 }
 
-// FaceMesh logic
+// FaceMesh face direction detection
 function checkFaceDirection(landmarks) {
   const leftEye = landmarks[33];
   const rightEye = landmarks[263];
@@ -132,10 +127,10 @@ function checkFaceDirection(landmarks) {
 
 function evaluateStudyStatus() {
   if (isWriting && faceLookingForward) {
-    statusText.textContent = "Focused — Studying";
+    statusText.textContent = "✅ Studying";
     startTimer();
   } else {
-    statusText.textContent = "Not Focused — Paused";
+    statusText.textContent = "⏸️ Paused (Posture or Face)";
     pauseTimer();
   }
 }
@@ -145,16 +140,15 @@ window.onload = async () => {
   loadStoredTime();
 
   const pose = new Pose({
-    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/${file}`
+    locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/${file}`
   });
   const faceMesh = new FaceMesh({
-    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`
+    locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`
   });
 
   pose.setOptions({
     modelComplexity: 0,
     smoothLandmarks: true,
-    enableSegmentation: false,
     minDetectionConfidence: 0.5,
     minTrackingConfidence: 0.5
   });
@@ -166,14 +160,14 @@ window.onload = async () => {
     minTrackingConfidence: 0.5
   });
 
-  pose.onResults((results) => {
+  pose.onResults(results => {
     if (results.poseLandmarks) {
       isWriting = isWritingPose(results.poseLandmarks);
       evaluateStudyStatus();
     }
   });
 
-  faceMesh.onResults((results) => {
+  faceMesh.onResults(results => {
     if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
       faceLookingForward = checkFaceDirection(results.multiFaceLandmarks[0]);
       evaluateStudyStatus();
