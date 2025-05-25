@@ -1,190 +1,131 @@
-let todaySeconds = 0;
-let isRunning = false;
-let timerInterval = null;
-let wakeLock = null;
-
-const todayKey = new Date().toISOString().slice(0, 10);
-const videoElement = document.createElement("video");
-videoElement.setAttribute("playsinline", true);
-document.body.appendChild(videoElement);
-
-const statusText = document.getElementById("status");
-const resetBtn = document.getElementById("reset");
-resetBtn.addEventListener("click", resetTimer);
-
-let faceLookingForward = false;
-let isWriting = false;
-
-async function requestWakeLock() {
-  try {
-    if ("wakeLock" in navigator) {
-      wakeLock = await navigator.wakeLock.request("screen");
-    }
-  } catch (err) {
-    console.error("Wake Lock error:", err);
-  }
-
-  document.addEventListener("visibilitychange", async () => {
-    if (wakeLock && document.visibilityState === "visible") {
-      await requestWakeLock();
-    }
-  });
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #111;
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  padding: 0;
 }
 
-function updateTime() {
-  todaySeconds++;
-  updateClockDisplay(todaySeconds);
-  localStorage.setItem(todayKey, todaySeconds);
-  updateDailyReport();
+.container {
+  margin-top: 30px;
+  padding: 20px;
 }
 
-function updateClockDisplay(seconds) {
-  const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
-  const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-  const secs = String(seconds % 60).padStart(2, '0');
-  const digits = hrs + mins + secs;
-
-  const units = ["hourTens", "hourOnes", "minuteTens", "minuteOnes", "secondTens", "secondOnes"];
-  digits.split('').forEach((digit, idx) => {
-    const unit = document.querySelector(`[data-unit="${units[idx]}"]`);
-    if (unit && unit.dataset.value !== digit) {
-      unit.dataset.value = digit;
-      unit.textContent = digit;
-      unit.classList.remove("flip");
-      void unit.offsetWidth;
-      unit.classList.add("flip");
-    }
-  });
+.real-flip-clock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 40px;
 }
 
-function startTimer() {
-  if (!isRunning) {
-    isRunning = true;
-    timerInterval = setInterval(updateTime, 1000);
-  }
+.digit-group {
+  display: flex;
+  gap: 6px;
 }
 
-function pauseTimer() {
-  if (isRunning) {
-    isRunning = false;
-    clearInterval(timerInterval);
-  }
+.colon {
+  font-size: 2.5rem;
+  color: #00cec9;
+  padding: 0 8px;
 }
 
-function resetTimer() {
-  pauseTimer();
-  todaySeconds = 0;
-  localStorage.removeItem(todayKey);
-  updateClockDisplay(todaySeconds);
-  updateDailyReport();
+.flip-digit {
+  perspective: 1000px;
+  width: 50px;
+  height: 70px;
 }
 
-function loadStoredTime() {
-  const saved = localStorage.getItem(todayKey);
-  if (saved) {
-    todaySeconds = parseInt(saved);
-    updateClockDisplay(todaySeconds);
-  }
-  updateDailyReport();
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #000;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
 }
 
-function updateDailyReport() {
-  const report = document.getElementById("daily-report");
-  if (!report) return;
-  report.innerHTML = "";
-  Object.keys(localStorage)
-    .filter(key => /^\d{4}-\d{2}-\d{2}$/.test(key))
-    .sort()
-    .reverse()
-    .forEach(key => {
-      const sec = parseInt(localStorage.getItem(key));
-      const hrs = String(Math.floor(sec / 3600)).padStart(2, "0");
-      const mins = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
-      const secs = String(sec % 60).padStart(2, "0");
-      const li = document.createElement("li");
-      li.textContent = `${key}: ${hrs}:${mins}:${secs}`;
-      report.appendChild(li);
-    });
+.card .top,
+.card .bottom {
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  background: #00cec9;
+  color: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease-in-out;
 }
 
-// BlazePose writing detection
-function isWritingPose(landmarks) {
-  const headY = landmarks[0].y;
-  const leftWristY = landmarks[15].y;
-  const rightWristY = landmarks[16].y;
-  return (headY < leftWristY && headY < rightWristY);
+.card .top {
+  top: 0;
+  border-bottom: 1px solid #008b85;
+  transform-origin: bottom;
 }
 
-// FaceMesh face direction detection
-function checkFaceDirection(landmarks) {
-  const leftEye = landmarks[33];
-  const rightEye = landmarks[263];
-  const noseTip = landmarks[1];
-  const noseCenter = (leftEye.x + rightEye.x) / 2;
-  const angle = noseTip.x - noseCenter;
-  return Math.abs(angle) < 0.03;
+.card .bottom {
+  bottom: 0;
+  border-top: 1px solid #008b85;
+  transform-origin: top;
 }
 
-function evaluateStudyStatus() {
-  if (isWriting && faceLookingForward) {
-    statusText.textContent = "✅ Studying";
-    startTimer();
-  } else {
-    statusText.textContent = "⏸️ Paused (Posture or Face)";
-    pauseTimer();
-  }
+.flip-digit.flip .top {
+  transform: rotateX(-90deg);
 }
 
-window.onload = async () => {
-  await requestWakeLock();
-  loadStoredTime();
+.flip-digit.flip .bottom {
+  transform: rotateX(0deg);
+}
 
-  const pose = new Pose({
-    locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/${file}`
-  });
-  const faceMesh = new FaceMesh({
-    locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`
-  });
+.controls button {
+  padding: 10px 20px;
+  font-size: 1em;
+  background-color: #00cec9;
+  color: black;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-  pose.setOptions({
-    modelComplexity: 0,
-    smoothLandmarks: true,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5
-  });
+#status {
+  margin-top: 20px;
+  font-weight: bold;
+}
 
-  faceMesh.setOptions({
-    maxNumFaces: 1,
-    refineLandmarks: true,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5
-  });
+.report {
+  margin-top: 30px;
+  text-align: left;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  pose.onResults(results => {
-    if (results.poseLandmarks) {
-      isWriting = isWritingPose(results.poseLandmarks);
-      evaluateStudyStatus();
-    }
-  });
+footer {
+  margin-top: 40px;
+  font-size: 0.9em;
+  color: #aaa;
+}
 
-  faceMesh.onResults(results => {
-    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-      faceLookingForward = checkFaceDirection(results.multiFaceLandmarks[0]);
-      evaluateStudyStatus();
-    } else {
-      faceLookingForward = false;
-      evaluateStudyStatus();
-    }
-  });
+footer a {
+  color: #00cec9;
+  text-decoration: none;
+}
 
-  const camera = new Camera(videoElement, {
-    onFrame: async () => {
-      await pose.send({ image: videoElement });
-      await faceMesh.send({ image: videoElement });
-    },
-    width: 640,
-    height: 480
-  });
+footer a:hover {
+  text-decoration: underline;
+}
 
-  camera.start();
-};
+.info-section {
+  padding: 20px;
+  font-size: 0.9em;
+  max-width: 600px;
+  margin: 0 auto;
+  color: #ccc;
+}
